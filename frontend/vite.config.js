@@ -104,5 +104,9 @@ export default defineConfig(({ mode }) => {
       react(),
       tmdbDevProxy(env.TMDB_BEARER_TOKEN),
     ],
+    build: {
+      outDir: '../dist',
+      emptyOutDir: true
+    }
   };
 })
