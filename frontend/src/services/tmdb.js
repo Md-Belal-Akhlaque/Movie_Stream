@@ -7,10 +7,20 @@ const requestTmdb = async (path, searchParams = {}) => {
     }
   });
 
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      accept: 'application/json',
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`TMDB request failed with status ${response.status}`);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Expected JSON from TMDB proxy, received ${contentType || 'unknown content type'}`);
   }
 
   return response.json();

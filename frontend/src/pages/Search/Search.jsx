@@ -26,8 +26,7 @@ const Search = () => {
         setMovies((res.results || []).filter(movie => movie.poster_path));
         setStatus('loaded');
       })
-      .catch(err => {
-        console.error(err);
+      .catch(() => {
         setMovies([]);
         setStatus('error');
         toast.error('Search failed. Please try again.', {

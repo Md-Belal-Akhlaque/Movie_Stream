@@ -33,8 +33,7 @@ const Player = () => {
         setMovieDetails(trailer);
         setStatus('loaded');
       })
-      .catch(err => {
-        console.error(err);
+      .catch(() => {
         setStatus('error');
         toast.error('Could not load trailer. Please try again.', {
           toastId: 'trailer-error'

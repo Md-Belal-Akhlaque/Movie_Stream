@@ -4,7 +4,6 @@ import Login from './pages/Login/Login'
 import Home from './pages/Home/Home'
 import './App.css'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import Signup from './pages/SignUp/Signup'
 import { onAuthStateChanged } from 'firebase/auth'
 import { useEffect } from 'react'
 import { auth } from './firebase'
@@ -20,15 +19,11 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log("logged in");
-
         if (location.pathname === '/login') {
           navigate('/');
         }
       }
       else {
-        console.log("logged out");
-
         if (location.pathname !== '/login') {
           navigate('/login');
         }

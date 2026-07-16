@@ -21,8 +21,7 @@ const TitleCards = ({ title, category }) => {
         setApiData(res.results || []);
         setStatus('loaded');
       })
-      .catch(err => {
-        console.error(err);
+      .catch(() => {
         setApiData([]);
         setStatus('error');
         toast.error('Could not load movies. Please try again.', {

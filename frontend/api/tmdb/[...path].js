@@ -1,4 +1,6 @@
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const CACHE_CONTROL = 's-maxage=300, stale-while-revalidate=600';
+const REQUEST_TIMEOUT_MS = 10000;
 
 const isAllowedPath = (path) => {
   return (
@@ -9,7 +11,22 @@ const isAllowedPath = (path) => {
 };
 
 const sendJson = (res, status, data) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.status(status).json(data);
+};
+
+const getRequestedPath = (req, url) => {
+  const pathParam = req.query?.path;
+
+  if (Array.isArray(pathParam)) {
+    return pathParam.join('/');
+  }
+
+  if (typeof pathParam === 'string') {
+    return pathParam;
+  }
+
+  return url.pathname.replace(/^\/api\/tmdb\/?/, '');
 };
 
 const wait = (ms) => new Promise((resolve) => {
@@ -21,7 +38,7 @@ const fetchTmdbWithRetry = async (url, options, retries = 1) => {
 
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
       return await fetch(url, {
@@ -43,8 +60,14 @@ const fetchTmdbWithRetry = async (url, options, retries = 1) => {
 };
 
 export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Allow', 'GET, OPTIONS');
+    res.status(204).end();
+    return;
+  }
+
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+    res.setHeader('Allow', 'GET, OPTIONS');
     sendJson(res, 405, { error: 'Method not allowed' });
     return;
   }
@@ -57,7 +80,7 @@ export default async function handler(req, res) {
   }
 
   const url = new URL(req.url, 'http://localhost');
-  const path = url.pathname.replace(/^\/api\/tmdb\/?/, '');
+  const path = getRequestedPath(req, url);
 
   if (!isAllowedPath(path)) {
     sendJson(res, 404, { error: 'TMDB endpoint is not allowed' });
@@ -65,6 +88,7 @@ export default async function handler(req, res) {
   }
 
   const tmdbUrl = new URL(`${TMDB_BASE_URL}/${path}`);
+  url.searchParams.delete('path');
   url.searchParams.forEach((value, key) => {
     tmdbUrl.searchParams.set(key, value);
   });
@@ -79,8 +103,8 @@ export default async function handler(req, res) {
 
     const data = await tmdbResponse.text();
 
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    res.setHeader('Content-Type', tmdbResponse.headers.get('content-type') || 'application/json');
+    res.setHeader('Cache-Control', CACHE_CONTROL);
+    res.setHeader('Content-Type', tmdbResponse.headers.get('content-type') || 'application/json; charset=utf-8');
     res.status(tmdbResponse.status).send(data);
   } catch (error) {
     const reason = error?.cause?.code || error?.name || error?.message || 'unknown';
