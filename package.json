@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "cd frontend && npm install && npm run build",
     "lint": "cd frontend && npm run lint",
     "dev": "cd frontend && npm run dev"
   }
