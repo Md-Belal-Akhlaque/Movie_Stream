@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import back_arrow_icon from '../../assets/back_arrow_icon.png'
 import './Player.css'
 import { useNavigate, useParams } from 'react-router-dom'
+import Loading from '../../components/Loading/Loading'
+import { toast } from 'react-toastify'
+import { getMovieVideos } from '../../services/tmdb'
 const Player = () => {
 
   const {id} = useParams();
@@ -13,21 +16,31 @@ const Player = () => {
     published_at: "",
     type: ""
   });
+  const [status, setStatus] = useState('loading');
 
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5OTIzZGNmZDFhZGM3MDc1MjRkMDBmZjM4OTEzOWIxMyIsIm5iZiI6MTc2MjU5ODQ4NC44MTYsInN1YiI6IjY5MGYxZTU0YjgyY2M4YzcwN2RkMTkzNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.OFDLiHyUSpCZpRlJ-NbVKZR7mcbUGaeSKibhYz6Ltc4'
-    }
-  };
   useEffect(() => {
+    setStatus('loading');
 
-    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`, options)
-      .then(res => res.json())
-      .then(res => setMovieDetails(res.results[0]))
-      .catch(err => console.error(err));
-  }, [])
+    getMovieVideos(id)
+      .then(res => {
+        const trailer = res.results?.[0];
+
+        if (!trailer) {
+          setStatus('empty');
+          return;
+        }
+
+        setMovieDetails(trailer);
+        setStatus('loaded');
+      })
+      .catch(err => {
+        console.error(err);
+        setStatus('error');
+        toast.error('Could not load trailer. Please try again.', {
+          toastId: 'trailer-error'
+        });
+      });
+  }, [id])
 
 
   return (
@@ -35,20 +48,27 @@ const Player = () => {
 
     <div className='player'>
       <img src={back_arrow_icon} alt="" onClick={()=>{navigate(-1)}} />
-      <iframe
-        src={`http://www.youtube.com/embed/${movieDetails.key}`}
-         frameborder="0"
-        width="90%"
-        height="90%"
-        title='trailer'
-        allowFullScreen
-        allowTransparency
-      ></iframe>
-      <div className="player-info">
-        <p>{movieDetails.published_at.slice(0,10)}</p>
-        <p>{movieDetails.name}</p>
-        <p>{movieDetails.type}</p>
-      </div>
+      {status === 'loading' && <Loading text='Loading trailer...' variant='page' />}
+      {status === 'error' && <p className='player-message'>Unable to load trailer right now.</p>}
+      {status === 'empty' && <p className='player-message'>No trailer found for this movie.</p>}
+      {status === 'loaded' && (
+        <>
+          <iframe
+            src={`https://www.youtube.com/embed/${movieDetails.key}`}
+            frameBorder="0"
+            width="90%"
+            height="90%"
+            title='trailer'
+            allowFullScreen
+            allowTransparency
+          ></iframe>
+          <div className="player-info">
+            <p>{movieDetails.published_at.slice(0,10)}</p>
+            <p>{movieDetails.name}</p>
+            <p>{movieDetails.type}</p>
+          </div>
+        </>
+      )}
     </div >
   )
 }

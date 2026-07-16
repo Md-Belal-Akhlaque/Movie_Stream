@@ -10,16 +10,7 @@ import {
 
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { toast } from "react-toastify";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDBdMdPsBVOMToaOpol94V64KJPB9wt7dM",
-  authDomain: "netaflex-9ed1b.firebaseapp.com",
-  projectId: "netaflex-9ed1b",
-  storageBucket: "netaflex-9ed1b.firebasestorage.app",
-  messagingSenderId: "54050987685",
-  appId: "1:54050987685:web:8280ec34567bc4778db74c",
-  measurementId: "G-FKK3GEK714",
-};
+import { firebaseConfig } from "./config/env";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

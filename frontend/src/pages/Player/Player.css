@@ -24,3 +24,9 @@ iframe{
     justify-content: space-between;
     width: 90%;
 }
+
+.player-message {
+    color: #d8d8d8;
+    font-size: 18px;
+    text-align: center;
+}
