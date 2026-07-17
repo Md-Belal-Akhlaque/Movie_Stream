@@ -5,5 +5,8 @@
     "build": "cd frontend && npm install && npm run build",
     "lint": "cd frontend && npm run lint",
     "dev": "cd frontend && npm run dev"
+  },
+  "dependencies": {
+    "firebase": "^12.16.0"
   }
 }

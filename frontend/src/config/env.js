@@ -15,5 +15,4 @@ export const firebaseConfig = {
   storageBucket: requireEnv('VITE_FIREBASE_STORAGE_BUCKET'),
   messagingSenderId: requireEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
   appId: requireEnv('VITE_FIREBASE_APP_ID'),
-  measurementId: requireEnv('VITE_FIREBASE_MEASUREMENT_ID'),
 };

@@ -1,5 +1,8 @@
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_BEARER_TOKEN = import.meta.env.VITE_TMDB_BEARER_TOKEN;
+
 const requestTmdb = async (path, searchParams = {}) => {
-  const url = new URL(`/api/tmdb/${path}`, window.location.origin);
+  const url = new URL(`${TMDB_BASE_URL}/${path}`);
 
   Object.entries(searchParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
@@ -7,20 +10,18 @@ const requestTmdb = async (path, searchParams = {}) => {
     }
   });
 
-  const response = await fetch(url, {
+  const options = {
+    method: 'GET',
     headers: {
       accept: 'application/json',
-    },
-  });
+      Authorization: `Bearer ${TMDB_BEARER_TOKEN}`
+    }
+  };
+
+  const response = await fetch(url, options);
 
   if (!response.ok) {
     throw new Error(`TMDB request failed with status ${response.status}`);
-  }
-
-  const contentType = response.headers.get('content-type') || '';
-
-  if (!contentType.includes('application/json')) {
-    throw new Error(`Expected JSON from TMDB proxy, received ${contentType || 'unknown content type'}`);
   }
 
   return response.json();
