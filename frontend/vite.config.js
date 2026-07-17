@@ -105,7 +105,7 @@ export default defineConfig(({ mode }) => {
       tmdbDevProxy(env.TMDB_BEARER_TOKEN),
     ],
     build: {
-      outDir: '../dist',
+      outDir: '../public',
       emptyOutDir: true
     }
   };
